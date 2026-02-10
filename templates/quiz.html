@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearningSphere - Quiz</title>
+    <link rel="shortcut icon" href="static/img/icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ... (KEEP ALL YOUR EXISTING CSS STYLES HERE) ... */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        :root {
+            --bg-primary: #0a0b14; --bg-secondary: #12141f; --purple-primary: #8b7cee;
+            --purple-light: #a593f5; --purple-dark: #6d5dd3; --text-primary: #ffffff;
+            --text-secondary: #a5b4c9; --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: rgba(139, 124, 238, 0.2); --shadow-purple: rgba(139, 124, 238, 0.4);
+            --success: #22c55e; --error: #ef4444;
+        
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; margin: 0; }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 800px; padding: 40px 20px; margin: 0 auto; }
+        .progress-container { background: var(--bg-secondary); border-radius: 20px; padding: 24px; margin-bottom: 24px; border: 1px solid rgba(139, 124, 238, 0.15); }
+        .progress-bar { height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--purple-primary), var(--purple-light)); width: 0%; transition: width 0.5s ease; }
+        .quiz-card { background: var(--bg-secondary); border-radius: 24px; padding: 48px; border: 1px solid rgba(139, 124, 238, 0.15); min-height: 500px; display: flex; flex-direction: column; }
+        .option { padding: 20px 24px; background: var(--input-bg); border: 2px solid var(--input-border); border-radius: 16px; cursor: pointer; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; transition: 0.3s; }
+        .option:hover { border-color: var(--purple-primary); background: rgba(139, 124, 238, 0.08); }
+        .option.correct { border-color: var(--success); background: rgba(34, 197, 94, 0.15); }
+        .option.incorrect { border-color: var(--error); background: rgba(239, 68, 68, 0.15); }
+        .option-letter { width: 40px; height: 40px; border-radius: 10px; background: rgba(139, 124, 238, 0.15); display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .hidden { display: none !important; }
+        .btn-next { background: var(--purple-primary); color: white; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; font-weight: 700; margin-top: auto; align-self: flex-end; }
+        .results-container { text-align: center; }
+        /* Animated backgrounds from your code */
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.2rem 3rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            padding: 0.8rem 3rem;
+            box-shadow: 0 5px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e4e4e7;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            color: #6366f1;
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #e4e4e7;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <a href="/" style="text-decoration: none;">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                LearningSphere
+            </div>
+        </a>
+            <ul class="nav-links">
+                <li><a href="/chatbot"><i class="fas fa-book"></i> Text</a></li>
+                <li><a href="/quiz"><i class="fa-solid fa-check"></i> Quiz</a></li>
+                <li><a href="#learn"><i class="fas fa-brain"></i> Learn</a></li>
+                {% if session.get("user") %}
+                    <li>
+                        <a href="/logout">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="/loginpage">
+                            <i class="fa-solid fa-user"></i> Login
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </nav>
+    <div class="stars">
+        <div class="star" style="left: 10%; top: 20%"></div>
+        <div class="star" style="left: 30%; top: 40%"></div>
+        <div class="star" style="left: 70%; top: 10%"></div>
+        </div>
+
+    <div class="container">
+        <div class="logo-section">
+            <h1 class="logo-text" style="text-align:center; color: var(--purple-light);">Machine Learning Quiz</h1>
+        </div>
+
+        <div class="progress-container">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>Question <span id="currentQNum">0</span> of 5</span>
+                <span>Score: <span id="scoreDisplay">0</span></span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quiz-box" class="quiz-card">
+            <div class="question-number" id="qLabel">Question 1</div>
+            <div class="question-text" id="qText" style="font-size: 24px; font-weight: 700; margin: 20px 0;">Loading...</div>
+            <div id="options-container"></div>
+            <button id="next-btn" class="btn-next" style="display: none;">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div id="results-box" class="quiz-card hidden">
+            <div class="results-container">
+                <h2 style="font-size: 32px;">Quiz Complete!</h2>
+                <div style="font-size: 60px; color: var(--purple-primary); margin: 20px 0;">
+                    <span id="finalScore">0</span> / 5
+                </div>
+                <p id="resultMsg" style="color: var(--text-secondary);"></p>
+                <button onclick="location.reload()" class="btn-next" style="align-self: center;">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let count = 0;
+        const total = 5;
+        let correctAns = "";
+
+        const qText = document.getElementById('qText');
+        const qLabel = document.getElementById('qLabel');
+        const optionsBox = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisp = document.getElementById('scoreDisplay');
+        const prog = document.getElementById('progressFill');
+
+        async function getNewQuestion() {
+            nextBtn.style.display = 'none';
+            optionsBox.innerHTML = '<p>Generating next question...</p>';
+            
+            try {
+                const res = await fetch('/api/get-question');
+                const data = await res.json();
+                
+                count++;
+                correctAns = data.answer;
+                
+                qLabel.innerText = `Question ${count}`;
+                document.getElementById('currentQNum').innerText = count;
+                qText.innerText = data.question;
+                prog.style.width = `${(count / total) * 100}%`;
+                
+                optionsBox.innerHTML = '';
+                data.options.forEach((opt, i) => {
+                    const char = String.fromCharCode(65 + i);
+                    const div = document.createElement('div');
+                    div.className = 'option';
+                    div.innerHTML = `<div class="option-letter">${char}</div><span>${opt}</span>`;
+                    div.onclick = () => select(div, opt);
+                    optionsBox.appendChild(div);
+                });
+            } catch (e) {
+                qText.innerText = "Error fetching question. Please try again.";
+            }
+        }
+
+        function select(el, val) {
+            const all = document.querySelectorAll('.option');
+            all.forEach(o => o.style.pointerEvents = 'none');
+
+            if (val === correctAns) {
+                el.classList.add('correct');
+                score++;
+                scoreDisp.innerText = score;
+            } else {
+                el.classList.add('incorrect');
+                all.forEach(o => {
+                    if (o.querySelector('span').innerText === correctAns) o.classList.add('correct');
+                });
+            }
+            nextBtn.style.display = 'block';
+            if (count === total) nextBtn.innerText = "Show Results";
+        }
+
+        nextBtn.onclick = () => {
+            if (count < total) getNewQuestion();
+            else finish();
+        };
+
+        function finish() {
+            document.getElementById('quiz-box').classList.add('hidden');
+            document.getElementById('results-box').classList.remove('hidden');
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('resultMsg').innerText = score >= 4 ? "Excellent! You are an ML Master!" : "Good job! Keep learning.";
+        }
+
+        getNewQuestion();
+    </script>
+</body>
+</html>

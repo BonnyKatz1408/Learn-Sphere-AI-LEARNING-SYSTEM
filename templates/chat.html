@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnSphere Engine | Adaptive Learning</title>
+    <link rel="stylesheet" href="/static/style2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="logo"><a href="/" style="text-decoration: none; color: white;"><h2> <i class="fas fa-graduation-cap"></i> LearnSphere Engine</h2></a></div>
+        <div class="nav-tiles">
+            <button class="nav-btn active" data-mode="dashboard">Dashboard</button>
+            <button class="nav-btn" data-mode="text">📄 Concept Engine</button>
+            <button class="nav-btn" data-mode="code">💻 Practice Lab</button>
+            <button class="nav-btn" data-mode="visual">🖼️ Visual Learning</button>
+            <button class="nav-btn" data-mode="audio">🎧 Audio Classroom</button>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="control-group">
+                <label>User Persona</label>
+                <select id="difficulty">
+                    <option value="beginner">Sarah (Student)</option>
+                    <option value="intermediate">Dr. Rodriguez (Professor)</option>
+                    <option value="advanced">Marcus (Professional)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Learning Topic</label>
+                <input type="text" id="topic" placeholder="e.g. Backpropagation, LSTM" value="Backpropagation">
+            </div>
+            <div class="control-group">
+                <label>Tutor Voice</label>
+                <select id="voice-select">
+                    <option value="us">🇺🇸 American</option>
+                    <option value="uk">🇬🇧 British</option>
+                    <option value="aus">🇦🇺 Australian</option>
+                    <option value="ind">🇮🇳 Indian</option>
+                </select>
+            </div>
+            <button id="start-btn" class="primary-btn">Initialize Engine</button>
+        </aside>
+
+        <main class="content-area">
+            <div id="loader" class="hidden">
+                <div class="spinner"></div>
+                <p>Architecting Learning Path...</p>
+            </div>
+
+            <section id="dashboard-view" class="view-section active">
+                <div class="metrics-grid">
+                    <div class="metric-card"><h4>Mastery</h4><p id="m-progress">0%</p></div>
+                    <div class="metric-card"><h4>Time Saved</h4><p id="m-time">--</p></div>
+                    <div class="metric-card"><h4>Confidence</h4><p id="m-conf">0%</p></div>
+                    <div class="metric-card"><h4>Coverage</h4><p id="m-cover">0%</p></div>
+                </div>
+
+                <div class="dashboard-columns">
+                    <div class="column-left">
+                        <div class="card">
+                            <h3>Skill Dependency Map</h3>
+                            <p style="font-size:0.8rem; color: #94a3b8; margin-bottom:1rem;">Click a node to view resources & track progress.</p>
+                            <div id="knowledge-graph-container" class="graph-placeholder">
+                                <p class="placeholder-text">Initialize to map skills.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column-right">
+                        <div class="card">
+                            <h3>Adaptive Roadmap</h3>
+                            <div id="roadmap-container">
+                                <p class="placeholder-text">Waiting for objective...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="quiz-section">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3>Infinite Assessment Engine</h3>
+                        <span id="quiz-counter" class="badge">Q: 0</span>
+                    </div>
+                    
+                    <div id="quiz-wrapper">
+                        <p class="placeholder-text">Complete roadmap phases to unlock assessments.</p>
+                    </div>
+
+                    <div id="quiz-actions" class="hidden" style="margin-top:1.5rem; text-align:right;">
+                        <button id="next-question-btn" class="primary-btn" style="width:auto;">Next Question →</button>
+                    </div>
+
+                    <div id="weakness-report" class="hidden" style="margin-top: 1.5rem;">
+                        <div class="card" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.05); padding:1rem;">
+                            <h4 style="color:#ef4444; margin:0 0 0.5rem 0;">⚠️ Weakness Detected</h4>
+                            <ul id="weakness-list" style="margin:0; padding-left:1.2rem; font-size:0.9rem; color:#fca5a5;"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="text-view" class="view-section hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Conceptual Explanation</h3>
+                        <div class="audio-controls">
+                             <button id="play-btn" class="icon-btn">▶</button>
+                             <button id="pause-btn" class="icon-btn hidden">⏸</button>
+                             <a id="download-btn" class="icon-btn hidden" title="Download MP3" download="lesson.mp3">⬇</a>
+                             <div class="audio-status" id="audio-status-text">Ready</div>
+                             <audio id="global-audio-player"></audio>
+                        </div>
+                    </div>
+                    <div id="text-output" class="markdown-body"></div>
+                </div>
+            </section>
+
+            <section id="code-view" class="view-section hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Implementation</h3>
+                        <div>
+                            <span id="deps-badge" class="badge">No deps detected</span>
+                            <button class="action-btn" onclick="copyCode()">📋 Copy</button>
+                            <button onclick="downloadNotebook()" class="action-btn">📥 Notebook</button>
+                        </div>
+                    </div>
+                    <div class="code-input-group">
+                        <input type="text" id="code-prompt" placeholder="Customize code... (e.g. 'Implement from scratch using NumPy')">
+                        <button id="gen-code-btn" class="primary-btn" style="width: auto; margin-top:0; padding: 0.6rem 1.2rem;">Generate</button>
+                    </div>
+                    <pre><code id="code-output" class="language-python"># Code will appear here...</code></pre>
+                </div>
+            </section>
+
+            <section id="visual-view" class="view-section hidden">
+                <div class="card">
+                    <h3>AI Generated Diagram</h3>
+                    <div id="visual-output" class="image-container">
+                        <div class="placeholder-box">Click Initialize to generate Visuals</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="audio-view" class="view-section hidden">
+                <div class="card">
+                    <h3>Audio Lecture</h3>
+                    <audio id="full-audio-player" controls class="full-width-audio"></audio>
+                    <div style="margin-top: 1rem;">
+                        <a id="download-btn-large" class="primary-btn hidden" style="display:inline-block; width:auto; text-decoration:none;" download="lesson.mp3">Download Audio File</a>
+                    </div>
+                    <div id="audio-guide-status">Generate text explanation first to create audio.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="chatbot-container" class="chatbot-container collapsed">
+        <div class="chatbot-header" onclick="toggleChat()">
+            <span>💬 AI Tutor</span>
+            <span id="toggle-icon">▲</span>
+        </div>
+        <div class="chatbot-messages" id="chat-messages">
+            <div class="bot-msg">Hi! I'm listening. Ask me anything about <span id="chat-topic-label">the topic</span>.</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chat-input" placeholder="Ask a follow-up question...">
+            <button onclick="sendChatMessage()">➤</button>
+        </div>
+    </div>
+
+    <div id="resource-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Skill Details</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <p id="modal-desc" style="color: #94a3b8; margin-bottom: 1rem;"></p>
+            <h4 style="margin-bottom:0.5rem; color:#fff;">Resources:</h4>
+            <div id="modal-resources" class="resource-list"></div>
+            <div class="modal-footer" style="margin-top: 1.5rem;">
+                <button id="mark-complete-btn" class="primary-btn">✅ Mark as Complete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script2.js"></script>
+</body>
+</html>
