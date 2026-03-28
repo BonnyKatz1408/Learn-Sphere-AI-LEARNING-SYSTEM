@@ -61,3 +61,17 @@ python app.py
     ├── script.js       # Frontend logic
     └── style.css       # Dark theme styling
 ```
+## MySQL database description
+1. Databse name :learnsphere
+2. Table name: users
+3. **Table Description :**
+```
++----------+-------------+------+-----+---------+----------------+
+| Field    | Type        | Null | Key | Default | Extra          |
++----------+-------------+------+-----+---------+----------------+
+| id       | int         | NO   | PRI | NULL    | auto_increment |
+| name     | varchar(50) | YES  |     | NULL    |                |
+| username | varchar(50) | YES  | UNI | NULL    |                |
+| password | varchar(50) | YES  |     | NULL    |                |
++----------+-------------+------+-----+---------+----------------+
+```
